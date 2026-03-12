@@ -135,16 +135,16 @@ archivolt-core/
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js (ES Modules) |
-| Framework | Express 4 |
-| Database | MySQL + mysql2/promise |
-| File Upload | Multer (memory storage) |
-| Cloud A | Local disk (Node fs) |
-| Cloud B | Supabase Storage |
-| Cloud C | Cloudinary v2 (raw resource type) |
-| Config | dotenv |
+| Layer       | Technology                        |
+| ----------- | --------------------------------- |
+| Runtime     | Node.js (ES Modules)              |
+| Framework   | Express 4                         |
+| Database    | MySQL + mysql2/promise            |
+| File Upload | Multer (memory storage)           |
+| Cloud A     | Local disk (Node fs)              |
+| Cloud B     | Supabase Storage                  |
+| Cloud C     | Cloudinary v2 (raw resource type) |
+| Config      | dotenv                            |
 
 ---
 
@@ -184,7 +184,7 @@ Or paste the contents of `schema.sql` into MySQL Workbench / TablePlus.
 4. Set visibility to **Private**
 5. Go to **Project Settings** → **API** and copy your **service_role** key (not the anon key)
 
-> ⚠️ The service_role key bypasses Row Level Security. Keep it server-side only and never expose it to a frontend client.
+> The service_role key bypasses Row Level Security. Keep it server-side only and never expose it to a frontend client.
 
 ### 5. Set Up Cloudinary
 
@@ -205,7 +205,7 @@ npm start
 You should see:
 
 ```
-✅ MySQL connected successfully.
+ MySQL connected successfully.
 
 🗄  Archivolt Core running → http://localhost:3000
    POST   /upload
@@ -219,19 +219,19 @@ You should see:
 
 ## Environment Variables
 
-| Variable | Description |
-|---|---|
-| `DB_HOST` | MySQL host (default: `localhost`) |
-| `DB_PORT` | MySQL port (default: `3306`) |
-| `DB_USER` | MySQL username |
-| `DB_PASSWORD` | MySQL password |
-| `DB_NAME` | MySQL database name (default: `archivolt`) |
-| `SUPA_URL` | Supabase project URL (`https://xxx.supabase.co`) |
-| `SUPA_KEY` | Supabase **service_role** key (not anon key) |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
-| `PORT` | Server port (default: `3000`) |
+| Variable                | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| `DATABASE_HOST`         | MySQL host (default: `localhost`)                |
+| `DATABASE_PORT`         | MySQL port (default: `3306`)                     |
+| `DATABASE_USER`         | MySQL username                                   |
+| `DATABASE_PASSWORD`     | MySQL password                                   |
+| `DATABASE_NAME`         | MySQL database name (default: `archivolt`)       |
+| `SUPA_URL`              | Supabase project URL (`https://xxx.supabase.co`) |
+| `SUPA_KEY`              | Supabase **service_role** key (not anon key)     |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name                            |
+| `CLOUDINARY_API_KEY`    | Cloudinary API key                               |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret                            |
+| `PORT`                  | Server port (default: `3000`)                    |
 
 ---
 
@@ -270,9 +270,9 @@ Each row in `file_ledger` is a complete map of where all four pieces of a file a
 All three drivers implement the same interface:
 
 ```js
-driver.upload(key, stream)  // → Promise<string>  (stored key/path)
-driver.download(key)        // → Readable | Promise<Readable>
-driver.ping()               // → Promise<{ ok: boolean, latency: number }>
+driver.upload(key, stream); // → Promise<string>  (stored key/path)
+driver.download(key); // → Readable | Promise<Readable>
+driver.ping(); // → Promise<{ ok: boolean, latency: number }>
 ```
 
 This is the **Strategy Pattern** — the server doesn't know or care which provider it's talking to. Adding a new provider (S3, Backblaze, R2) means creating a new driver file that implements these three methods.
@@ -306,7 +306,7 @@ This is the **Strategy Pattern** — the server doesn't know or care which provi
 ### `createShards(fileStream)`
 
 ```js
-import { createShards } from './storageManager.js';
+import { createShards } from "./storageManager.js";
 
 const { shardA, shardB, shardC, shardP } = createShards(fileStream);
 ```
@@ -320,7 +320,7 @@ Returns four `PassThrough` streams. As data flows in from `fileStream`, bytes ar
 ### `reconstruct(streamA, streamB, streamC, streamP, dest)`
 
 ```js
-import { reconstruct } from './storageManager.js';
+import { reconstruct } from "./storageManager.js";
 
 await reconstruct(streamA, streamB, streamC, streamP, res);
 ```
@@ -333,7 +333,7 @@ await reconstruct(streamA, streamB, streamC, streamP, res);
 ### `bufferToStream(buffer)`
 
 ```js
-import { bufferToStream } from './storageManager.js';
+import { bufferToStream } from "./storageManager.js";
 
 const stream = bufferToStream(req.file.buffer);
 ```
@@ -350,9 +350,9 @@ Upload a file to be sharded across all three nodes.
 
 **Request:** `multipart/form-data`
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `file` | File | ✅ | The file to upload (max 50MB) |
+| Field  | Type | Required | Description                   |
+| ------ | ---- | -------- | ----------------------------- |
+| `file` | File | Yes      | The file to upload (max 50MB) |
 
 **Response `201`:**
 
@@ -365,10 +365,17 @@ Upload a file to be sharded across all three nodes.
     "filename": "document.pdf",
     "size": 121952,
     "shards": {
-      "a": { "provider": "local",      "key": "1720000000000_a.shard" },
-      "b": { "provider": "supabase",   "key": "1720000000000_b.shard" },
-      "c": { "provider": "cloudinary", "key": "archivolt-shards/1720000000000_c" },
-      "p": { "provider": "local",      "key": "1720000000000_p.shard", "role": "parity" }
+      "a": { "provider": "local", "key": "1720000000000_a.shard" },
+      "b": { "provider": "supabase", "key": "1720000000000_b.shard" },
+      "c": {
+        "provider": "cloudinary",
+        "key": "archivolt-shards/1720000000000_c"
+      },
+      "p": {
+        "provider": "local",
+        "key": "1720000000000_p.shard",
+        "role": "parity"
+      }
     }
   }
 }
@@ -406,9 +413,9 @@ Ping all three storage nodes and return their status.
   "onlineNodes": 3,
   "totalNodes": 3,
   "nodes": {
-    "local":      { "ok": true,  "latency": 2 },
-    "supabase":   { "ok": true,  "latency": 187 },
-    "cloudinary": { "ok": true,  "latency": 312 }
+    "local": { "ok": true, "latency": 2 },
+    "supabase": { "ok": true, "latency": 187 },
+    "cloudinary": { "ok": true, "latency": 312 }
   },
   "checkedAt": "2025-01-01T12:00:00.000Z"
 }
@@ -434,10 +441,10 @@ Paginated list of all files in the ledger.
 
 **Query Parameters:**
 
-| Param | Default | Description |
-|---|---|---|
-| `limit` | `20` | Max 100 |
-| `offset` | `0` | For pagination |
+| Param    | Default | Description    |
+| -------- | ------- | -------------- |
+| `limit`  | `20`    | Max 100        |
+| `offset` | `0`     | For pagination |
 
 **Response:**
 
@@ -467,7 +474,7 @@ Paginated list of all files in the ledger.
 
 Remove a file's ledger entry by ID.
 
-> ⚠️ This removes the database record only. The physical shard files on each provider are **not** deleted automatically. Handle provider-side cleanup separately if needed.
+> This removes the database record only. The physical shard files on each provider are **not** deleted automatically. Handle provider-side cleanup separately if needed.
 
 **Response:**
 
@@ -486,12 +493,12 @@ Archivolt implements **single-node fault tolerance** using XOR parity — the sa
 
 ### Failure Scenarios
 
-| Situation | Outcome |
-|---|---|
-| All 3 nodes online | Normal reconstruction |
+| Situation                       | Outcome                                        |
+| ------------------------------- | ---------------------------------------------- |
+| All 3 nodes online              | Normal reconstruction                          |
 | 1 node offline or shard corrupt | Silent XOR recovery — client gets correct file |
-| 2 nodes offline | `503` error — insufficient data to recover |
-| 3 nodes offline | `503` error |
+| 2 nodes offline                 | `503` error — insufficient data to recover     |
+| 3 nodes offline                 | `503` error                                    |
 
 ### How XOR Recovery Works
 
@@ -525,13 +532,13 @@ In Archivolt, this is applied byte-by-byte across aligned positions in the three
 
 ### What Each Provider Sees
 
-| Provider | Data Held | Can Read File? |
-|---|---|---|
-| Local disk | Every 3rd byte (positions 0, 3, 6...) | ❌ No |
-| Supabase | Every 3rd byte (positions 1, 4, 7...) | ❌ No |
-| Cloudinary | Every 3rd byte (positions 2, 5, 8...) | ❌ No |
-| Any 2 providers combined | 2/3 of bytes, non-contiguous | ❌ No |
-| All 3 providers combined | All bytes | ✅ Yes (if recombined) |
+| Provider                 | Data Held                             | Can Read File?      |
+| ------------------------ | ------------------------------------- | ------------------- |
+| Local disk               | Every 3rd byte (positions 0, 3, 6...) | No                  |
+| Supabase                 | Every 3rd byte (positions 1, 4, 7...) | No                  |
+| Cloudinary               | Every 3rd byte (positions 2, 5, 8...) | No                  |
+| Any 2 providers combined | 2/3 of bytes, non-contiguous          | No                  |
+| All 3 providers combined | All bytes                             | Yes (if recombined) |
 
 Even if a cloud provider is breached or subpoenaed, they cannot reconstruct the file from their shard alone.
 
@@ -595,4 +602,4 @@ Get-FileHash recovered.pdf -Algorithm MD5
 
 ---
 
-*Built with Node.js · Express · MySQL · Supabase · Cloudinary*
+_Built with Node.js · Express · MySQL · Supabase · Cloudinary_
